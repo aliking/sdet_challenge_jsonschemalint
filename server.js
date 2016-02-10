@@ -23,4 +23,4 @@ app.use(compression());
 app.use('/draft3', express.static(__dirname + "/draft3"));
 app.use('/draft4', express.static(__dirname + "/draft4"));
 
-app.listen(3001);
+app.listen(process.env.PORT || 5000);
