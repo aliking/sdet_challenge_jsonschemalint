@@ -20,6 +20,6 @@ app.use(function(req, res, next) {
 
 app.use(compression());
 
-app.use('/draft4', express.static(__dirname + "/draft4"));
+app.use('/', express.static(__dirname + "/draft4"));
 
 app.listen(process.env.PORT || 5000);

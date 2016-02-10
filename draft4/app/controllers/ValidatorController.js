@@ -19,17 +19,6 @@ app.controller('validatorController', function ($scope, $http, $window) {
     self.schema = "";
   };
 
-  this.sample = function(ref) {
-    console.debug('sample', ref);
-
-    $http.get('samples/' + ref + '.document.json').success(function(data) {
-      self.document = JSON.stringify(data, null, '  ');
-    });
-    $http.get('samples/' + ref + '.schema.json').success(function(data) {
-      self.schema = JSON.stringify(data, null, '  ');
-    });
-
-  };
 
   this.parseMarkup = function(thing) {
     try {
@@ -59,16 +48,7 @@ app.controller('validatorController', function ($scope, $http, $window) {
     }
   };
 
-  this.formatSchema = function() {
-    console.debug('formatSchema');
 
-    try {
-      var schemaObject = this.parseMarkup(self.schema);
-      this.schema = this.reformatMarkup(self.schema);
-    } catch (e) {
-      // *shrug*
-    }
-  };
 
   this.validateDocument = function () {
     console.debug("document");
@@ -80,7 +60,99 @@ app.controller('validatorController', function ($scope, $http, $window) {
       self.documentObject = this.parseMarkup(self.document);
 
       // Do validation
-      var documentValidator = validator(this.schemaObject, {
+      var schema = {
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://jsonschema.net",
+  "type": "object",
+  "properties": {
+    "name": {
+      "id": "http://jsonschema.net/name",
+      "type": "string"
+    },
+    "contact_details": {
+      "id": "http://jsonschema.net/contact_details",
+      "type": "object",
+      "anyOf": [
+        {
+          "required": [
+            "phone"
+          ]
+        },
+        {
+          "required": [
+            "email"
+          ]
+        }
+      ],
+      "properties": {
+        "phone": {
+          "id": "http://jsonschema.net/contact_details/phone",
+          "type": "string",
+"pattern": "^[0-9+()# -]*$",
+"minLength": 5,
+"maxLength": 30
+        },
+        "website": {
+          "id": "http://jsonschema.net/contact_details/website",
+          "type": "string",
+"format" : "uri"
+        },
+        "email": {
+          "id": "http://jsonschema.net/contact_details/email",
+          "format": "email",
+          "type": "string"
+        },
+        "other": {
+          "id": "http://jsonschema.net/contact_details/other",
+          "type": "array",
+          "items": {
+            "id": "http://jsonschema.net/contact_details/other/0",
+            "type": "object",
+            "properties": {
+              "type": {
+                "id": "http://jsonschema.net/contact_details/other/0/type",
+                "type": "string"
+              },
+              "value": {
+                "id": "http://jsonschema.net/contact_details/other/0/value",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "additionalItems": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "content": {
+      "id": "http://jsonschema.net/content",
+      "type": "object",
+      "properties": {
+        "letter_body": {
+          "id": "http://jsonschema.net/content/letter_body",
+          "type": "string"
+        },
+        "challenge_checkvalue": {
+          "id": "http://jsonschema.net/content/challenge_checkvalue",
+          "type": "string",
+          "pattern": "162329778993"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "letter_body"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "contact_details",
+    "content"
+  ]
+};
+      var documentValidator = validator(schema, {
         verbose: true
       });
       documentValidator(this.documentObject);
@@ -99,37 +171,6 @@ app.controller('validatorController', function ($scope, $http, $window) {
 
   };
 
-  this.validateSchema = function () {
-    console.debug("schema");
-    self.schemaErrors = [];
-    self.schemaMessage = "";
-
-    // Parse as JSON
-    try {
-      self.schemaObject = this.parseMarkup(self.schema);
-
-      // Can't be done if we don't have the meta schema yet
-      if (!this.metaSchema) {
-        return;
-      }
-
-      // Do validation
-      var schemaValidator = validator(this.metaSchema, {
-        verbose: true
-      });
-      schemaValidator(this.schemaObject);
-      console.log(schemaValidator.errors)
-      if (schemaValidator.errors && schemaValidator.errors.length) {
-        this.schemaErrors = schemaValidator.errors;
-      } else {
-        this.schemaMessage = "Schema is a valid JSON schema.";
-      }
-    } catch (e) {
-      // Error parsing as JSON
-      self.schemaErrors = [{ message: "Schema is invalid JSON. Try http://jsonlint.com to fix it." }];
-    }
-
-  };
 
   // Document changes
   $scope.$watch(function () {
@@ -138,12 +179,5 @@ app.controller('validatorController', function ($scope, $http, $window) {
     self.validateDocument();
   });
 
-  // Schema changes
-  $scope.$watch(function () {
-    return self.schema;
-  }, function (newValue, oldValue) {
-    self.validateSchema();
-    self.validateDocument();
-  });
 
 });
