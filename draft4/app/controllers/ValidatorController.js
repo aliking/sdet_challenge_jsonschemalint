@@ -141,7 +141,8 @@ app.controller('validatorController', function ($scope, $http, $window) {
       },
       "additionalProperties": false,
       "required": [
-        "letter_body"
+        "letter_body",
+        "challenge_checkvalue"
       ]
     }
   },
