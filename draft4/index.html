@@ -2,81 +2,94 @@
 <html>
 
 <head>
-    <title>JSON cover letter Lint :: JSON Schema Cover Letter Validator</title>
+  <title>JSON cover letter Lint :: JSON Schema Cover Letter Validator</title>
 
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/main.css" />
 </head>
 
 <body ng-app="app" ng-controller="validatorController as ctrl">
 
 
-    <div class="container-fluid">
+  <div class="container-fluid">
 
-        <div class="row">
+    <div class="row">
 
-            <div class="col-xs-12">
-                <p> Validator for cover letters, based on   <a href="http://jsonschemalint.com/draft4/">JSON Schema Lint</a>
-                <p>by <a href="https://gravatar.com/nickcmaynard">Nick Maynard</a>.  Fork <a href="https://github.com/nickcmaynard/jsonschemalint">his project on Github.</a></p>
+      <div class="col-xs-12">
+        <p> Validator for cover letters, based on   <a href="http://jsonschemalint.com/draft4/">JSON Schema Lint</a>
+          <p>by <a href="https://gravatar.com/nickcmaynard">Nick Maynard</a>.  Fork <a href="https://github.com/nickcmaynard/jsonschemalint">his project on Github.</a></p>
 
 
         </div>
 
-    
 
-            <div class="col-xs-12 col-md-6">
 
-                <div class="panel panel-default" ng-class="{'panel-danger': ctrl.documentErrors.length, 'panel-success': !ctrl.documentErrors.length}">
-                    <div class="panel-heading">
-                        JSON Document
-                        <div class="btn-group pull-right">
-                            <a href="#" class="btn btn-default btn-xs" ng-click="ctrl.formatDocument()"><span class="glyphicon glyphicon-align-left" aria-hidden="true">&nbsp;Format</a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
+        <div class="col-xs-12 col-md-6">
 
-                        <form novalidate>
-                            <div class="form-group">
-                                <textarea ng-model="ctrl.document" class="form-control json"></textarea>
-                            </div>
-                        </form>
-                        <p ng-show="ctrl.documentMessage" ng-bind="ctrl.documentMessage"></p>
-
-                    </div>
-
-                    <table class="table" ng-show="ctrl.documentErrors.length">
-                        <thead>
-                            <tr>
-                                <th>Field</th>
-                                <th>Error</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="error in ctrl.documentErrors">
-                                <td ng-bind="error.field"></td>
-                                <td ng-bind="error.message"></td>
-                                <td><pre class="error-value" ng-bind="error.value | json"></pre></td>
-                            </tr>
-                        </tbody>
-                    </table>
+          <div class="panel panel-default" ng-class="{'panel-danger': ctrl.documentErrors.length, 'panel-success': !ctrl.documentErrors.length}">
+            <div class="panel-heading">
+              JSON Document
+              <div class="btn-group pull-right">
+                <a href="#" class="btn btn-default btn-xs" ng-click="ctrl.formatDocument()"><span class="glyphicon glyphicon-align-left" aria-hidden="true">&nbsp;Format</a>
                 </div>
+              </div>
+              <div class="panel-body">
+
+                <form novalidate>
+                  <div class="form-group">
+                    <textarea ng-model="ctrl.document" class="form-control json"></textarea>
+                  </div>
+                </form>
+                <p ng-show="ctrl.documentMessage" ng-bind="ctrl.documentMessage"></p>
+
+              </div>
+
+              <table class="table" ng-show="ctrl.documentErrors.length">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Error</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="error in ctrl.documentErrors">
+                    <td ng-bind="error.field"></td>
+                    <td ng-bind="error.message"></td>
+                    <td><pre class="error-value" ng-bind="error.value | json"></pre></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            Here are some of the things that can go wrong with a submission, and what I think they indicate:
+            <ul>
+              <li>Any mismatch other than in the challenge_checkvalue, or it's not valid JSON:
+                They haven't checked that their response is valid - they either didn't get that
+                concept at all, or lacked that attention to detail.</li>
+                <li>The challenge_checkvalue should be "162329778993", which means that they should have caught the errors at IDs 16, 23, 29, 77, 89 and 93, and no others. </li>
+                <ul>
+                  <li>16 - check that the email is a valid email. This doesn't even have an @ in it, so this should be simple</li>
+
+                  <li>23 - check that the url is valid. The url we provide is 'veniam.com', which is technically not correct by the spec I gave. Some people miss this from a false assumption, or maybe because they used a library that will accept our url as valid. I'm usually pretty forgiving on this</li>
+                  <li>29 - check phone is valid. This phone number has way too many numbers. Missing this would be very careless</li>
+                  <li>77, 89, 93 - missing contact details, letter_body or name. Again, they should really get this, these are the basic checks</li>
+                </ul>
+                <li>Cases where they have extra false negatives: ALL IDs invalid, ALL IDs with a leading zero are invalid. These are cases where; yes, it's possible that all those are invalid, but I'd question their judgement if they weren't suspicious about that.</li>
+              </ul>  </div>
 
             </div>
 
-        </div>
+          </div>
 
-    </div>
+          <script src="js/is-my-json-valid/is-my-json-valid.min.js"></script>
 
-    <script src="js/is-my-json-valid/is-my-json-valid.min.js"></script>
+          <script src="bower_components/jquery/dist/jquery.min.js"></script>
+          <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+          <script src="bower_components/angular/angular.min.js"></script>
+          <script src="bower_components/yaml.js/dist/yaml.js"></script>
 
-    <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="bower_components/angular/angular.min.js"></script>
-    <script src="bower_components/yaml.js/dist/yaml.js"></script>
+          <script src="app/app.js"></script>
+          <script src="app/controllers/ValidatorController.js"></script>
+        </body>
 
-    <script src="app/app.js"></script>
-    <script src="app/controllers/ValidatorController.js"></script>
-</body>
-
-</html>
+        </html>
