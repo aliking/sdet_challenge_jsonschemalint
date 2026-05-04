@@ -12,9 +12,9 @@ bower install
 ## Preview
 
 ```
-node server.js
+PORT=3456 node server.js
 ```
-Open http://localhost:3001/draft4 or http://localhost:3001/draft3.
+Open http://localhost:3456
 
 ## Building
 
